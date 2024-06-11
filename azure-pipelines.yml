@@ -2,7 +2,7 @@ trigger:
 - main  # Adjust this to your branch name
 
 pool:
-  vmImage: 'ubuntu-latest'  # Using the latest Ubuntu VM image
+  name: 'Default'  # Use the name of your agent pool
 
 steps:
 - task: UsePythonVersion@0
