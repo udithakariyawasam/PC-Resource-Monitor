@@ -1,36 +1,48 @@
-# Python package
-# Create and test a Python package on multiple Python versions.
-# Add steps that analyze code, save the dist with the build record, publish to a PyPI-compatible index, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/python
-
 trigger:
-- main
+- main  # Adjust this to your branch name
 
 pool:
-  vmImage: ubuntu-latest
-strategy:
-  matrix:
-    Python27:
-      python.version: '2.7'
-    Python35:
-      python.version: '3.5'
-    Python36:
-      python.version: '3.6'
-    Python37:
-      python.version: '3.7'
+  vmImage: 'ubuntu-latest'  # Using the latest Ubuntu VM image
 
 steps:
 - task: UsePythonVersion@0
   inputs:
-    versionSpec: '$(python.version)'
-  displayName: 'Use Python $(python.version)'
+    versionSpec: '3.x'  # Use Python 3.x
+    addToPath: true
 
 - script: |
     python -m pip install --upgrade pip
-    pip install -r requirements.txt
-  displayName: 'Install dependencies'
+    pip install psutil
+  displayName: 'Install Dependencies'
 
 - script: |
-    pip install pytest pytest-azurepipelines
-    pytest
-  displayName: 'pytest'
+    import psutil
+    import time
+
+    def get_cpu_usage():
+        return psutil.cpu_percent(interval=1)
+
+    def get_memory_usage():
+        memory = psutil.virtual_memory()
+        return memory.percent
+
+    def get_disk_usage():
+        disk = psutil.disk_usage('/')
+        return disk.percent
+
+    def monitor_resources():
+        print("Monitoring PC Resources (Press Ctrl+C to stop)")
+        print("{:<10} {:<10} {:<10}".format("CPU (%)", "Memory (%)", "Disk (%)"))
+        try:
+            while True:
+                cpu_usage = get_cpu_usage()
+                memory_usage = get_memory_usage()
+                disk_usage = get_disk_usage()
+                print("{:<10} {:<10} {:<10}".format(cpu_usage, memory_usage, disk_usage))
+                time.sleep(1)  # Update every second
+        except KeyboardInterrupt:
+            print("\nMonitoring stopped.")
+
+    if __name__ == "__main__":
+        monitor_resources()
+  displayName: 'Run Resource Monitoring Script'
